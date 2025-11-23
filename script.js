@@ -8,15 +8,15 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Navbar Background Change on Scroll
+// Navbar Background Change on Scroll (เปลี่ยนจากการตั้งค่า Style โดยตรง เป็นการ Add/Remove Class)
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
     if (window.scrollY > 50) {
-        navbar.style.background = 'rgba(43, 29, 22, 0.98)';
-        navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+        // เพิ่มคลาส navbar-scrolled (CSS จะกำหนดสีเข้ม)
+        navbar.classList.add('navbar-scrolled');
     } else {
-        navbar.style.background = 'rgba(43, 29, 22, 0.95)';
-        navbar.style.boxShadow = 'none';
+        // ลบคลาสเมื่ออยู่บนสุด
+        navbar.classList.remove('navbar-scrolled');
     }
 });
 
@@ -30,14 +30,26 @@ if (hamburger) {
     });
 }
 
-// Scroll Animation Observer
+// Scroll Animation Observer (ปรับปรุงให้ทำงานกับองค์ประกอบย่อยได้ด้วย)
 const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
         if (entry.isIntersecting) {
+            // เมื่อองค์ประกอบปรากฏในหน้าจอ ให้เพิ่มคลาส 'show'
             entry.target.classList.add('show');
+
+            // ปิดการสังเกตเมื่อแสดงแล้ว เพื่อให้แอนิเมชันทำงานครั้งเดียว
+            observer.unobserve(entry.target);
         }
     });
+}, {
+    // กำหนดให้แอนิเมชันเริ่มทำงานเมื่อเห็นองค์ประกอบนั้น 10%
+    threshold: 0.1
 });
 
-const hiddenElements = document.querySelectorAll('.hidden');
+// 1. สังเกต <section> ทั้งหมด
+const hiddenElements = document.querySelectorAll('.full-screen-section.hidden');
 hiddenElements.forEach((el) => observer.observe(el));
+
+// 2. สังเกตองค์ประกอบย่อยอื่นๆ ที่มีคลาส 'hidden' เพื่อให้มี Staggered Effect
+const childElementsToObserve = document.querySelectorAll('.home-content.hidden, .scroll-indicator.hidden, .sop-image-wrapper.hidden, .sop-text-wrapper.hidden, .profile-left.hidden, .profile-right.hidden, .project-images-left.hidden, .project-info-right.hidden, .activity-images-left.hidden, .cert-item.hidden');
+childElementsToObserve.forEach((el) => observer.observe(el));
